@@ -1,0 +1,10 @@
+.DS_Store
+node_modules
+package-lock.json
+build/
+deployed_ropsten.json
+deployed_rinkeby.json
+deployed_ratings_ropsten.json
+deployed_ratings_rinkeby.json
+testscripts/testenv.js
+fortube_migrations_init.log

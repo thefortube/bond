@@ -1,0 +1,20 @@
+{
+  "name": "fortube",
+  "version": "1.0.0",
+  "description": "fortube contract",
+  "main": "truffle-config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://39.107.71.188:9090/sanbin/fortube.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bignumber.js": "^9.0.0",
+    "truffle": "^5.1.14",
+    "truffle-hdwallet-provider": "^1.0.17"
+  }
+}

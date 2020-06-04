@@ -1,0 +1,21 @@
+{
+  "name": "fortube-2.0-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "issue": "node ./test/issue.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bignumber.js": "^9.0.0",
+    "moment": "^2.24.0",
+    "web3": "^1.2.6",
+    "web3-eth-personal": "1.2.7",
+    "yargs": "^15.3.1"
+  }
+}
