@@ -123,17 +123,17 @@ contract CoreUtils {
         uint256 CollateralDec = CollateralDecimal(id);
         uint256 crowdDec = ERC20Detailed(b.crowdToken()).decimals();
 
-        uint256 unitCollateral = 10**CollateralDec;
-        uint256 unitCrowd = 10**(crowdDec.add(18));
+        //fix safemath mul overflow bug when crowddec is 18, eg. DAI, BUSD
+        uint256 unit = 10 ** (crowdDec.add(18).sub(CollateralDec));
+
 
         return
             b
                 .totalBondIssuance()
                 .mul(b.depositMultiple())
                 .mul(crowdPrice(id))
-                .mul(unitCollateral)
                 .div(pawnPrice(id))
-                .div(unitCrowd);
+                .div(unit);
     }
 
     function pawnBalanceInUsd(uint256 id) public view returns (uint256) {
@@ -296,15 +296,17 @@ contract CoreUtils {
 
         uint256 _crowdPrice = crowdPrice(id);
         uint256 _pawnPrice = pawnPrice(id);
+
+        uint256 decPawn = uint256(CollateralDecimal(id));
+        uint256 decCrowd = uint256(ERC20Detailed(b.crowdToken()).decimals());
+
+        //fix safemath mul overflow bug when decCrowd is 18, eg. DAI, BUSD
+        uint256 unit = 10 ** (decPawn.add(18).sub(decCrowd));
+
         uint256 x = liability
             .mul(_crowdPrice)
-            .mul(1 ether)
-            .mul(10**uint256(CollateralDecimal(id)))
-            .div(10**uint256(ERC20Detailed(b.crowdToken()).decimals()))
+            .mul(unit)
             .div(_pawnPrice.mul(b.discount()));
-        
-        uint256 decCrowd = uint256(ERC20Detailed(b.crowdToken()).decimals());
-        uint256 decPawn = uint256(CollateralDecimal(id));
         
         if (decPawn != decCrowd) {
             x = ceil(x, 10 ** abs(decPawn, decCrowd).sub(1));
