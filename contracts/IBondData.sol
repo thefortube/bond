@@ -146,4 +146,6 @@ interface IBondData {
 
     function sysProfit() external view returns (uint256);
     function totalFee() external view returns (uint256);
+
+    function supportRedeem() external view returns (bool);
 }

@@ -208,12 +208,21 @@ contract Core {
         b.setBondParam("depositMultiple", IConfig(config).depositMultiple(b.collateralToken()));
 
         require(amount >= ICoreUtils(coreUtils).calcMinCollateralTokenAmount(id), "invalid deposit amount");
+        
+        // 支持评级
+        if (b.supportRedeem()) {
+            b.setBondParam("bondStage", uint256(BondStage.RiskRating));
+            b.setBondParamAddress("gov", IConfig(config).gov());
 
-        b.setBondParam("bondStage", uint256(BondStage.RiskRating));
-        b.setBondParamAddress("gov", IConfig(config).gov());
+            uint256 voteDuration = IConfig(config).voteDuration(); //s
+            b.setBondParam("voteExpired", now + voteDuration);
+        } else {
+            b.setBondParam("bondStage", uint256(BondStage.CrowdFunding));
+            b.setBondParam("voteExpired", now);//不支持评级的债券发债后，投票立即到期
+            b.setBondParam("investExpired", now + IConfig(config).investDuration());
+            b.setBondParam("bondExpired", now + IConfig(config).investDuration() + b.maturity());
+        }
 
-        uint256 voteDuration = IConfig(config).voteDuration(); //s
-        b.setBondParam("voteExpired", now + voteDuration);
         b.setBondParam("gracePeriod", IConfig(config).gracePeriod());
 
         b.setBondParam("discount", IConfig(config).discount(b.collateralToken()));
@@ -309,8 +318,15 @@ contract Core {
                 //根据当前融资额度获取投票手续费.
                 uint256 totalFee = b.totalFee();
                 uint256 voteFee = totalFee.mul(IConfig(config).ratingFeeRatio()).div(_1);
-                b.setBondParam("fee", voteFee);
-                b.setBondParam("sysProfit", totalFee.sub(voteFee));
+
+                //支持评级
+                if (b.supportRedeem()) {
+                    b.setBondParam("fee", voteFee);
+                    b.setBondParam("sysProfit", totalFee.sub(voteFee));
+                } else {
+                    b.setBondParam("fee", 0);//无投票手续费
+                    b.setBondParam("sysProfit", totalFee);//发债手续费全部归ForTube平台
+                }
             }
         } else {
             b.setBondParam("bondStage", uint256(BondStage.CrowdFundingFail));
