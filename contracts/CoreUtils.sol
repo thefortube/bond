@@ -270,7 +270,7 @@ contract CoreUtils {
         return minUsdValue.mul(10 ** decPawn).div(pawnPrice(id));
     }
     
-    function ceilPawn(uint256 id, uint256 a) public pure returns (uint256) {
+    function ceilPawn(uint256 id, uint256 a) public view returns (uint256) {
         IBondData b = bondData(id);
         
         uint256 decCrowd = uint256(ERC20Detailed(b.crowdToken()).decimals());
