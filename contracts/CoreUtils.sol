@@ -264,19 +264,13 @@ contract CoreUtils {
     }
     
     function precision(uint256 id) public view returns (uint256) {
-        IBondData b = bondData(id);
-
-        uint256 decCrowd = uint256(ERC20Detailed(b.crowdToken()).decimals());
         uint256 decPawn = uint256(CollateralDecimal(id));
 
-        if (decPawn != decCrowd) {
-            return 10 ** (abs(decPawn, decCrowd).add(1));
-        }
-
-        return 10;
+        uint256 minUsdValue = 1e15;
+        return minUsdValue.mul(10 ** decPawn).div(pawnPrice(id));
     }
     
-    function ceilPawn(uint256 id, uint256 a) public view returns (uint256) {
+    function ceilPawn(uint256 id, uint256 a) public pure returns (uint256) {
         IBondData b = bondData(id);
         
         uint256 decCrowd = uint256(ERC20Detailed(b.crowdToken()).decimals());
@@ -287,6 +281,7 @@ contract CoreUtils {
         } else {
             a = ceil(a, 10);
         }
+
         return a;
     }
     
@@ -307,20 +302,16 @@ contract CoreUtils {
             .mul(_crowdPrice)
             .mul(unit)
             .div(_pawnPrice.mul(b.discount()));
-        
-        if (decPawn != decCrowd) {
-            x = ceil(x, 10 ** abs(decPawn, decCrowd).sub(1));
-        } else {
-            x = ceil(x, 10);
+
+        uint256 _x1 = liability.mul(_crowdPrice).mul(unit);
+        uint256 _x2 = _pawnPrice.mul(b.discount());
+        if (x.mul(_x2) != _x1) {
+            x = x.add(1);
         }
+
         
         x = min(x, b.getBorrowAmountGive());
 
-        if (x < b.getBorrowAmountGive()) {
-            if (abs(x, b.getBorrowAmountGive()) <= precision(id)) {
-                x = b.getBorrowAmountGive();//资不抵债情况
-            }
-        }
 
         return x;
     }
@@ -428,7 +419,7 @@ contract CoreUtils {
             //pawnUsd/crowdUsd < 4
             //unsafe = pawnBalanceInUsd(id) < crowdUsdxLeverage;
             
-            uint256 _ceilPawn = ceilPawn(id, pawnBalanceInUsd(id));
+            uint256 _ceilPawn = ceil(pawnBalanceInUsd(id), 10);
             
             uint256 _crowdPrice = crowdPrice(id);
             uint256 decCrowd = uint256(ERC20Detailed(b.crowdToken()).decimals());
