@@ -122,7 +122,7 @@ contract BondData is ERC20Detailed, ERC20Burnable, ReentrancyGuard {
     uint256 public financePurposeHash;
     uint256 public paymentSourceHash;
     uint256 public issueTimestamp;//申请发债时间
-    bool public supportRedeem;//是否支持赎回
+    bool public supportRedeem;//是否支持赎回, 该变量之前没有使用，现作为是否支持评级的标志, 支持为true，否则为false
     bool public supportPutback;//是否支持回售
 
     //分批清算的参数设置，设置最后剩余清算额度为1000单位，当最后剩余清算额度<1000时，用户需一次性清算完毕。
